@@ -6,3 +6,5 @@ build
 sdkconfig*
 
 spiffs.bin
+
+venv
