@@ -1,0 +1,3 @@
+dependencies:
+  CMF:
+    path: ../components/CMF

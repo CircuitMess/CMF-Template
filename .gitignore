@@ -2,6 +2,7 @@
 
 cmake-build-debug
 build
+managed_components
 
 sdkconfig*
 

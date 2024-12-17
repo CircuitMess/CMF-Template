@@ -1,4 +1,8 @@
+file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.c")
+
 file(GLOB_RECURSE LIBS "../lib/*/src/**.cpp" "../lib/*/src/**.c")
 set(LIBS_INCL "")
 
-idf_component_register(SRCS "main.cpp" ${LIBS} INCLUDE_DIRS "" ${LIBS_INCL})
+idf_component_register(SRCS "main.cpp"  ${SOURCES} ${LIBS} INCLUDE_DIRS "" ${LIBS_INCL})
+
+#spiffs_create_partition_image(storage ../spiffs_image FLASH_IN_PROJECT)
