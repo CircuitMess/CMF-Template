@@ -10,6 +10,8 @@
 #include "LV_Interface/FSLVGL.h"
 #include "src/Settings/SettingsScreen.h"
 #include "FS/SPIFFS.h"
+#include "themes/lv_theme_private.h"
+
 
 //HW to test on - Bit v2/v1
 class TestApp : public Application {
@@ -35,6 +37,22 @@ class TestApp : public Application {
 			{ Button::A,     LV_KEY_ENTER },
 			{ Button::B,     LV_KEY_ESC }
 	};
+
+	StrongObjectPtr<LVGL> lvgl;
+	StrongObjectPtr<InputLVGL> inputLVGL;
+	StrongObjectPtr<FSLVGL> fsLVGL;
+	static lv_style_t scr;
+	static lv_style_t label;
+	lv_theme_t* theme;
+
+	static void applyTheme(lv_theme_t* th, lv_obj_t* obj){
+		if(lv_obj_get_parent(obj) == nullptr){
+			lv_obj_add_style(obj, &scr, 0);
+		}else if(lv_obj_check_type(obj, &lv_label_class)){
+			lv_obj_add_style(obj, &label, 0);
+		}
+	}
+
 protected:
 	virtual void begin() noexcept override{
 		Super::begin();
@@ -100,19 +118,7 @@ protected:
 					canvas.setColorDepth(lgfx::rgb565_2Byte);
 					canvas.createSprite(128, 128);
 				});
-
-		printf("lvgl created\n");
-		auto lvgl = newObject<LVGL>(this, disp);
-		auto lvInput = new InputLVGL(bi, LVGL_mappings);
-
-		if(!SPIFFS::init()) return;
-
-		auto lvFS = new FSLVGL('S');
-
-//		lvgl->startScreen([](){ return std::make_unique<SettingsScreen>(); });
-
-
-		printf("end of App::begin()\n");
+		disp->getLGFX().setSwapBytes(true);
 
 
 /*		bi->event.bind(this, [this](Enum<int> key, ButtonInput::Action action){
@@ -123,6 +129,36 @@ protected:
 			}
 		});*/
 
+		LV_FONT_DECLARE(devin);
+
+		lvgl = newObject<LVGL>(this, disp, [this](lv_disp_t* disp) -> lv_theme_t*{
+			lv_style_init(&scr);
+			lv_style_set_bg_color(&scr, lv_color_black());
+			lv_style_set_bg_opa(&scr, LV_OPA_COVER);
+
+			lv_style_init(&label);
+			lv_style_set_text_font(&label, &devin);
+			lv_style_set_text_color(&label, lv_color_make(207, 198, 184));
+			lv_style_set_text_line_space(&label, 2);
+
+			theme = lv_theme_simple_init(disp);
+			lv_theme_set_apply_cb(theme, applyTheme);
+			theme->disp = disp;
+			theme->color_primary = lv_color_make(244, 126, 27);
+			theme->color_secondary = lv_color_make(207, 198, 184);
+			theme->font_small = &devin;
+			theme->font_normal = &devin;
+			theme->font_large = &devin;
+			return theme;
+		});
+		inputLVGL = newObject<InputLVGL>(this, bi, LVGL_mappings);
+
+		if(!SPIFFS::init()) return;
+
+		fsLVGL = newObject<FSLVGL>(this, 'S');
+
+		lvgl->startScreen([](){ return std::make_unique<SettingsScreen>(); });
+
 	}
 
 	virtual void tick(float deltaTime) noexcept override{
@@ -132,5 +168,8 @@ protected:
 		Super::onDestroy();
 	}
 };
+
+lv_style_t TestApp::scr = lv_style_t{};
+lv_style_t TestApp::label = lv_style_t{};
 
 CMF_MAIN(TestApp)
