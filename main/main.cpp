@@ -120,14 +120,13 @@ protected:
 				});
 		disp->getLGFX().setSwapBytes(true);
 
-
-/*		bi->event.bind(this, [this](Enum<int> key, ButtonInput::Action action){
+		bi->event.bind(this, [this](Enum<int> key, ButtonInput::Action action){
 			if(action == ButtonInput::Action::Press){
 				printf("Button %d pressed\n", (int) key);
 			}else{
 				printf("Button %d released\n", (int) key);
 			}
-		});*/
+		});
 
 		LV_FONT_DECLARE(devin);
 
@@ -162,6 +161,7 @@ protected:
 	}
 
 	virtual void tick(float deltaTime) noexcept override{
+		Super::tick(deltaTime);
 	}
 
 	virtual void onDestroy() noexcept override{
