@@ -19,6 +19,7 @@ SettingsScreen::SettingsScreen() {
 }
 
 void SettingsScreen::onStop(){
+	InputLVGL::getInstance()->setVertNav(false);
 
 }
 
@@ -27,6 +28,7 @@ void SettingsScreen::onStarting(){
 }
 
 void SettingsScreen::onStart(){
+	InputLVGL::getInstance()->setVertNav(true);
 }
 
 void SettingsScreen::buildUI(){
@@ -76,6 +78,36 @@ void SettingsScreen::buildUI(){
 
 	}, LV_ALIGN_LEFT_MID);
 	lv_group_add_obj(inputGroup, *saveAndExit);
+
+	sleepSlider = new DiscreteSliderElement(*this, "Sleep time", [this](uint8_t value){
+	}, values, 0);
+	lv_group_add_obj(inputGroup, *sleepSlider);
+
+	brightnessSlider = new SliderElement(*this, "Brightness", [this](uint8_t value){
+	}, 100);
+	lv_group_add_obj(inputGroup, *brightnessSlider);
+
+	audioSwitch = new BoolElement(*this, "Sound", [this](bool value){
+
+	}, true);
+	lv_group_add_obj(inputGroup, *audioSwitch);
+
+	factoryReset = new LabelElement(*this, "Factory reset", [this](){
+
+	}, LV_ALIGN_LEFT_MID);
+	lv_group_add_obj(inputGroup, *factoryReset);
+
+
+	saveAndExit = new LabelElement(*this, "Save and Exit", [this](){
+		assert(0);
+
+	}, LV_ALIGN_LEFT_MID);
+	lv_group_add_obj(inputGroup, *saveAndExit);
+
+
+	for(int i = 0; i < lv_obj_get_child_count(*this); ++i){
+		lv_obj_add_flag(lv_obj_get_child(*this, i), LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+	}
 
 
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);

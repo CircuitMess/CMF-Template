@@ -11,7 +11,7 @@
 #include "src/Settings/SettingsScreen.h"
 #include "FS/SPIFFS.h"
 #include "themes/lv_theme_private.h"
-
+#include "Util/PerfMon.h"
 
 //HW to test on - Bit v2/v1
 class TestApp : public Application {
@@ -38,6 +38,10 @@ class TestApp : public Application {
 			{ Button::B,     LV_KEY_ESC }
 	};
 
+	const std::map<lv_key_t, lv_key_t> VertRemap = {{ LV_KEY_UP,    LV_KEY_LEFT },
+															   { LV_KEY_DOWN,  LV_KEY_RIGHT },
+															   { LV_KEY_LEFT,  LV_KEY_DOWN },
+															   { LV_KEY_RIGHT, LV_KEY_UP }};
 	StrongObjectPtr<LVGL> lvgl;
 	StrongObjectPtr<InputLVGL> inputLVGL;
 	StrongObjectPtr<FSLVGL> fsLVGL;
@@ -120,14 +124,6 @@ protected:
 				});
 		disp->getLGFX().setSwapBytes(true);
 
-		bi->event.bind(this, [this](Enum<int> key, ButtonInput::Action action){
-			if(action == ButtonInput::Action::Press){
-				printf("Button %d pressed\n", (int) key);
-			}else{
-				printf("Button %d released\n", (int) key);
-			}
-		});
-
 		LV_FONT_DECLARE(devin);
 
 		lvgl = newObject<LVGL>(this, disp, [this](lv_disp_t* disp) -> lv_theme_t*{
@@ -150,11 +146,13 @@ protected:
 			theme->font_large = &devin;
 			return theme;
 		});
-		inputLVGL = newObject<InputLVGL>(this, bi, LVGL_mappings);
+		inputLVGL = newObject<InputLVGL>(this, bi, LVGL_mappings, VertRemap);
 
 		if(!SPIFFS::init()) return;
 
-		fsLVGL = newObject<FSLVGL>(this, 'S');
+		auto rawCache = new RawCache({"/Bg/Level5.bin"});
+		rawCache->load();
+		fsLVGL = newObject<FSLVGL>(this, 'S', rawCache);
 
 		lvgl->startScreen([](){ return std::make_unique<SettingsScreen>(); });
 

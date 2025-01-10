@@ -15,8 +15,6 @@ private:
 
 	void buildUI();
 
-	void performFactoryReset();
-
 	lv_obj_t* bg = nullptr;
 	class DiscreteSliderElement* sleepSlider = nullptr;
 	class SliderElement* brightnessSlider = nullptr;
